@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Messages</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Send New Message
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('main.messages') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="recipient_type">Recipient Type</label>
+                    <select class="form-control" id="recipient_type" name="recipient_type">
+                        <option value="broadcast">Broadcast (All Employees)</option>
+                        <option value="admin">Specific Admin</option>
+                        <option value="employee">Specific Employee</option>
+                    </select>
+                </div>
+                <div class="form-group" id="recipient_admin_group" style="display: none;">
+                    <label for="recipient_admin_id">Select Admin</label>
+                    <select class="form-control" id="recipient_admin_id" name="recipient_id">
+                        <option value="">Select Admin</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="is_recipient_admin" value="true">
+                </div>
+                <div class="form-group" id="recipient_employee_group" style="display: none;">
+                    <label for="recipient_employee_id">Select Employee</label>
+                    <select class="form-control" id="recipient_employee_id" name="recipient_id">
+                        <option value="">Select Employee</option>
+                        {% for employee in employees %}
+                            <option value="{{ employee.id }}">{{ employee.first_name }} {{ employee.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="is_recipient_admin" value="false">
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" class="form-control" id="subject" name="subject">
+                </div>
+                <div class="form-group">
+                    <label for="body">Message Body</label>
+                    <textarea class="form-control" id="body" name="body" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="attachment">Attachment</label>
+                    <input type="file" class="form-control-file" id="attachment" name="attachment">
+                </div>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Sent Messages
+        </div>
+        <div class="card-body">
+            {% if sent_messages %}
+                <div class="list-group">
+                    {% for message in sent_messages %}
+                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ message.subject if message.subject else 'No Subject' }}</h5>
+                                <small>{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <p class="mb-1">{{ message.body }}</p>
+                            {% if message.attachment_path %}
+                                <small>Attachment: <a href="#">{{ message.attachment_path }}</a></small>
+                            {% endif %}
+                            <small>To: 
+                                {% if message.recipient_id is none %}
+                                    Broadcast
+                                {% elif message.is_recipient_admin %}
+                                    Admin (ID: {{ message.recipient_id }})
+                                {% else %}
+                                    Employee (ID: {{ message.recipient_id }})
+                                {% endif %}
+                            </small>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No sent messages.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Received Messages
+        </div>
+        <div class="card-body">
+            {% if received_messages %}
+                <div class="list-group">
+                    {% for message in received_messages %}
+                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ message.subject if message.subject else 'No Subject' }}</h5>
+                                <small>{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <p class="mb-1">{{ message.body }}</p>
+                            {% if message.attachment_path %}
+                                <small>Attachment: <a href="#">{{ message.attachment_path }}</a></small>
+                            {% endif %}
+                            <small>From: 
+                                {% if message.is_sender_admin %}
+                                    Admin (ID: {{ message.sender_id }})
+                                {% else %}
+                                    Employee (ID: {{ message.sender_id }})
+                                {% endif %}
+                            </small>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No received messages.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const recipientType = document.getElementById('recipient_type');
+        const recipientAdminGroup = document.getElementById('recipient_admin_group');
+        const recipientEmployeeGroup = document.getElementById('recipient_employee_group');
+        const recipientAdminId = document.getElementById('recipient_admin_id');
+        const recipientEmployeeId = document.getElementById('recipient_employee_id');
+
+        function toggleRecipientFields() {
+            recipientAdminGroup.style.display = 'none';
+            recipientEmployeeGroup.style.display = 'none';
+            recipientAdminId.removeAttribute('name');
+            recipientEmployeeId.removeAttribute('name');
+
+            if (recipientType.value === 'admin') {
+                recipientAdminGroup.style.display = 'block';
+                recipientAdminId.setAttribute('name', 'recipient_id');
+            } else if (recipientType.value === 'employee') {
+                recipientEmployeeGroup.style.display = 'block';
+                recipientEmployeeId.setAttribute('name', 'recipient_id');
+            }
+        }
+
+        recipientType.addEventListener('change', toggleRecipientFields);
+        toggleRecipientFields(); // Call on page load to set initial state
+    });
+</script>
+{% endblock %}

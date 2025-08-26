@@ -1,0 +1,14 @@
+# Flask and extensions
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-Bcrypt
+python-dotenv
+
+# WSGI Servers for deployment
+gunicorn
+waitress
+
+# Database driver
+PyMySQL

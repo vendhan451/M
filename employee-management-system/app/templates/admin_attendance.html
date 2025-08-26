@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Employee Attendance Report</h1>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Employee Name</th>
+                <th>Status</th>
+                <th>Clock In Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in attendance_data %}
+            <tr>
+                <td>{{ data.employee_name }}</td>
+                <td>
+                    {% if data.status == 'Clocked In' %}
+                        <span class="badge bg-success">{{ data.status }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ data.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if data.clock_in_time %}
+                        {{ data.clock_in_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

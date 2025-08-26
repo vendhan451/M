@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Active Employees</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ total_active_employees }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Pending Leave Requests</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ pending_leave_requests }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Active Projects</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ active_projects }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Today's Clocked In</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ clocked_in_today }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    Quick Actions
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{{ url_for('main.manage_employees') }}" class="list-group-item list-group-item-action">Manage Employees</a>
+                        <a href="{{ url_for('main.manage_projects') }}" class="list-group-item list-group-item-action">Manage Projects</a>
+                        <a href="{{ url_for('main.view_attendance') }}" class="list-group-item list-group-item-action">View Attendance</a>
+                        <a href="{{ url_for('main.view_work_reports') }}" class="list-group-item list-group-item-action">View Work Reports</a>
+                        <a href="{{ url_for('main.manage_leave_requests') }}" class="list-group-item list-group-item-action">Manage Leave Requests</a>
+                        <a href="{{ url_for('main.manage_billing_records') }}" class="list-group-item list-group-item-action">Manage Billing Records</a>
+                        <a href="{{ url_for('main.manage_calendar_events') }}" class="list-group-item list-group-item-action">Manage Calendar Events</a>
+                        <a href="{{ url_for('main.messages') }}" class="list-group-item list-group-item-action">Messages</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

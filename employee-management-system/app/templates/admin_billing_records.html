@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Billing Records{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Manage Billing Records</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Generate New Billing Records
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('main.manage_billing_records') }}" method="POST">
+                <div class="form-group">
+                    <label for="project_id">Project</label>
+                    <select class="form-control" id="project_id" name="project_id" required>
+                        <option value="">Select Project</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }} ({{ project.billing_method }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate Records</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Existing Billing Records
+        </div>
+        <div class="card-body">
+            {% if billing_records %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Project</th>
+                                <th>Employee</th>
+                                <th>Period</th>
+                                <th>Hours Billed</th>
+                                <th>Units Billed</th>
+                                <th>Amount</th>
+                                <th>Generated Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in billing_records %}
+                                <tr>
+                                    <td>{{ record.id }}</td>
+                                    <td>{{ record.project.name }}</td>
+                                    <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
+                                    <td>{{ record.start_date.strftime('%Y-%m-%d') }} to {{ record.end_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ record.hours_billed if record.hours_billed is not none else 'N/A' }}</td>
+                                    <td>{{ record.units_billed if record.units_billed is not none else 'N/A' }}</td>
+                                    <td>${{ "%.2f"|format(record.amount) }}</td>
+                                    <td>{{ record.generated_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.adjust_billing_record', record_id=record.id) }}" class="btn btn-sm btn-info">Adjust</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No billing records found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

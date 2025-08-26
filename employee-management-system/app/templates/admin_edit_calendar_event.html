@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}Edit Calendar Event{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Edit Calendar Event</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-header">
+            Edit Event Details
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('main.edit_calendar_event', event_id=event.id) }}" method="POST">
+                <div class="form-group">
+                    <label for="title">Event Title</label>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ event.title }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3">{{ event.description }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Start Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="start_date" name="start_date" value="{{ event.start_date.strftime('%Y-%m-%dT%H:%M') }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="end_date" name="end_date" value="{{ event.end_date.strftime('%Y-%m-%dT%H:%M') }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="event_type">Event Type</label>
+                    <select class="form-control" id="event_type" name="event_type" required>
+                        <option value="Company Event" {% if event.event_type == 'Company Event' %}selected{% endif %}>Company Event</option>
+                        <option value="Holiday" {% if event.event_type == 'Holiday' %}selected{% endif %}>Holiday</option>
+                        <option value="Leave" {% if event.event_type == 'Leave' %}selected{% endif %}>Leave</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Event</button>
+                <a href="{{ url_for('main.manage_calendar_events') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

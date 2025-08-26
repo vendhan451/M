@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Submit Leave Request for {{ employee.first_name }} {{ employee.last_name }}</h1>
+
+    <form action="{{ url_for('main.submit_leave_request', employee_id=employee.id) }}" method="POST">
+        <div class="mb-3">
+            <label for="start_date" class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="start_date" name="start_date" required>
+        </div>
+        <div class="mb-3">
+            <label for="end_date" class="form-label">End Date</label>
+            <input type="date" class="form-control" id="end_date" name="end_date" required>
+        </div>
+        <div class="mb-3">
+            <label for="leave_type" class="form-label">Leave Type</label>
+            <select class="form-select" id="leave_type" name="leave_type" required>
+                <option value="">-- Select Leave Type --</option>
+                <option value="Annual Leave">Annual Leave</option>
+                <option value="Sick Leave">Sick Leave</option>
+                <option value="Unpaid Leave">Unpaid Leave</option>
+                <option value="Maternity/Paternity Leave">Maternity/Paternity Leave</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+    </form>
+</div>
+{% endblock %}

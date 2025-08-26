@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Calendar Events{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Manage Calendar Events</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Add New Calendar Event
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('main.manage_calendar_events') }}" method="POST">
+                <div class="form-group">
+                    <label for="title">Event Title</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Start Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="event_type">Event Type</label>
+                    <select class="form-control" id="event_type" name="event_type" required>
+                        <option value="Company Event">Company Event</option>
+                        <option value="Holiday">Holiday</option>
+                        <option value="Leave">Leave</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Event</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Existing Calendar Events
+        </div>
+        <div class="card-body">
+            {% if events %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Created By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                                <tr>
+                                    <td>{{ event.id }}</td>
+                                    <td>{{ event.title }}</td>
+                                    <td>{{ event.event_type }}</td>
+                                    <td>{{ event.start_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ event.end_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ event.user.username if event.user else 'System' }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.edit_calendar_event', event_id=event.id) }}" class="btn btn-sm btn-info">Edit</a>
+                                        <form action="{{ url_for('main.delete_calendar_event', event_id=event.id) }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this event?');">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No calendar events found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

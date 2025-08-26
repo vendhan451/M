@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Submit Work Report for {{ employee.first_name }} {{ employee.last_name }}</h1>
+
+    <form action="{{ url_for('main.submit_work_report', employee_id=employee.id) }}" method="POST">
+        <div class="mb-3">
+            <label for="project" class="form-label">Select Project</label>
+            <select class="form-select" id="project" name="project_id" required>
+                <option value="">-- Select a Project --</option>
+                {% for project in projects %}
+                <option value="{{ project.id }}" data-billing-method="{{ project.billing_method }}">{{ project.name }} ({{ project.billing_method }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="billingMethodInput" class="mb-3" style="display: none;">
+            <!-- Dynamic input will be rendered here by JavaScript -->
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description (Optional)</label>
+            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Report</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const projectSelect = document.getElementById('project');
+        const billingMethodInputDiv = document.getElementById('billingMethodInput');
+
+        function updateBillingMethodInput() {
+            const selectedOption = projectSelect.options[projectSelect.selectedIndex];
+            const billingMethod = selectedOption ? selectedOption.getAttribute('data-billing-method') : '';
+            
+            billingMethodInputDiv.innerHTML = ''; // Clear previous input
+
+            if (billingMethod === 'Hourly') {
+                billingMethodInputDiv.style.display = 'block';
+                billingMethodInputDiv.innerHTML = `
+                    <label for="hoursWorked" class="form-label">Hours Worked</label>
+                    <input type="number" step="0.01" class="form-control" id="hoursWorked" name="hours_worked" required>
+                `;
+            } else if (billingMethod === 'Count-Based') {
+                billingMethodInputDiv.style.display = 'block';
+                billingMethodInputDiv.innerHTML = `
+                    <label for="unitsCompleted" class="form-label">Units Completed</label>
+                    <input type="number" class="form-control" id="unitsCompleted" name="units_completed" required>
+                `;
+            } else {
+                billingMethodInputDiv.style.display = 'none';
+            }
+        }
+
+        projectSelect.addEventListener('change', updateBillingMethodInput);
+
+        // Initial call to set up the input based on the default selected project (if any)
+        updateBillingMethodInput();
+    });
+</script>
+{% endblock %}

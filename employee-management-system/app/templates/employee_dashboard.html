@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="text-center mb-4">Welcome, {{ employee.first_name }}!</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Attendance
+            </div>
+            <div class="card-body">
+                <p class="card-text">Current Time: <span id="currentTime"></span></p>
+                <p class="card-text">Status: <span id="attendanceStatus">Loading...</span></p>
+                <button id="clockInOutButton" class="btn btn-primary">Loading...</button>
+                <input type="hidden" id="employeeId" value="{{ employee.id }}">
+            </div>
+        </div>
+
+        <div class="card mb-4">
+           <div class="card-header">
+               Personal Profile
+           </div>
+           <div class="card-body">
+               <p><strong>Name:</strong> {{ employee.first_name }} {{ employee.last_name }}</p>
+               <p><strong>Email:</strong> {{ employee.email }}</p>
+               <p><strong>Department:</strong> {{ employee.department }}</p>
+           </div>
+        </div>
+
+        <div class="card mb-4">
+           <div class="card-header">
+               Quick Links
+           </div>
+           <div class="card-body">
+               <div class="list-group">
+                   <a href="{{ url_for('main.submit_work_report', employee_id=employee.id) }}" class="list-group-item list-group-item-action">Submit Work Report</a>
+                   <a href="{{ url_for('main.submit_leave_request', employee_id=employee.id) }}" class="list-group-item list-group-item-action">Request Leave</a>
+                   <a href="{{ url_for('main.view_messages', employee_id=employee.id) }}" class="list-group-item list-group-item-action">Messages</a>
+                   <a href="{{ url_for('main.view_calendar', employee_id=employee.id) }}" class="list-group-item list-group-item-action">Company Calendar</a>
+               </div>
+           </div>
+        </div>
+   </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+   const isClockedIn = {{ is_clocked_in | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/attendance.js') }}"></script>
+{% endblock %}

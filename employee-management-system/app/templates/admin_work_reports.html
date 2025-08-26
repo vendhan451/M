@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Work Reports</h1>
+
+    <form method="GET" action="{{ url_for('main.view_work_reports') }}" class="mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="employee_id" class="form-label">Employee</label>
+                <select class="form-select" id="employee_id" name="employee_id">
+                    <option value="">All Employees</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if request.args.get('employee_id')|int == emp.id %}selected{% endif %}>{{ emp.first_name }} {{ emp.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="project_id" class="form-label">Project</label>
+                <select class="form-select" id="project_id" name="project_id">
+                    <option value="">All Projects</option>
+                    {% for proj in projects %}
+                    <option value="{{ proj.id }}" {% if request.args.get('project_id')|int == proj.id %}selected{% endif %}>{{ proj.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.args.get('start_date') }}">
+            </div>
+            <div class="col-md-2">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.args.get('end_date') }}">
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('main.view_work_reports') }}" class="btn btn-secondary">Clear Filters</a>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Employee</th>
+                <th>Project</th>
+                <th>Hours Worked</th>
+                <th>Units Completed</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in work_reports %}
+            <tr>
+                <td>{{ report.date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ report.employee.first_name }} {{ report.employee.last_name }}</td>
+                <td>{{ report.project.name }}</td>
+                <td>{% if report.hours_worked %}{{ report.hours_worked }}{% else %}N/A{% endif %}</td>
+                <td>{% if report.units_completed %}{{ report.units_completed }}{% else %}N/A{% endif %}</td>
+                <td>{{ report.description or 'N/A' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center">No work reports found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Manage Leave Requests</h1>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Leave Type</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Requested On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in leave_requests %}
+            <tr>
+                <td>{{ request.employee.first_name }} {{ request.employee.last_name }}</td>
+                <td>{{ request.leave_type }}</td>
+                <td>{{ request.start_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ request.end_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if request.status == 'Pending' %}
+                        <span class="badge bg-warning">{{ request.status }}</span>
+                    {% elif request.status == 'Approved' %}
+                        <span class="badge bg-success">{{ request.status }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ request.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ request.request_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>
+                    {% if request.status == 'Pending' %}
+                    <form action="{{ url_for('main.approve_leave_request', request_id=request.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form action="{{ url_for('main.reject_leave_request', request_id=request.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                    {% else %}
+                    <button type="button" class="btn btn-sm btn-secondary" disabled>No Actions</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No leave requests found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

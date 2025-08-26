@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block title %}Adjust Billing Record{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Adjust Billing Record #{{ billing_record.id }}</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Billing Record Details
+        </div>
+        <div class="card-body">
+            <p><strong>Project:</strong> {{ billing_record.project.name }}</p>
+            <p><strong>Employee:</strong> {{ billing_record.employee.first_name }} {{ billing_record.employee.last_name }}</p>
+            <p><strong>Period:</strong> {{ billing_record.start_date.strftime('%Y-%m-%d') }} to {{ billing_record.end_date.strftime('%Y-%m-%d') }}</p>
+            <p><strong>Hours Billed:</strong> {{ billing_record.hours_billed if billing_record.hours_billed is not none else 'N/A' }}</p>
+            <p><strong>Units Billed:</strong> {{ billing_record.units_billed if billing_record.units_billed is not none else 'N/A' }}</p>
+            <p><strong>Current Amount:</strong> ${{ "%.2f"|format(billing_record.amount) }}</p>
+            <p><strong>Generated Date:</strong> {{ billing_record.generated_date.strftime('%Y-%m-%d %H:%M') }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Make Adjustment
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('main.adjust_billing_record', record_id=billing_record.id) }}" method="POST">
+                <div class="form-group">
+                    <label for="adjustment_amount">Adjustment Amount</label>
+                    <input type="number" step="0.01" class="form-control" id="adjustment_amount" name="adjustment_amount" required>
+                    <small class="form-text text-muted">Enter a positive value to increase, negative to decrease.</small>
+                </div>
+                <div class="form-group">
+                    <label for="reason">Reason for Adjustment</label>
+                    <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Apply Adjustment</button>
+                <a href="{{ url_for('main.manage_billing_records') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+
+    {% if billing_record.adjustments %}
+    <div class="card mt-4">
+        <div class="card-header">
+            Adjustment History
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Adjustment ID</th>
+                            <th>Admin</th>
+                            <th>Amount</th>
+                            <th>Reason</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for adjustment in billing_record.adjustments %}
+                        <tr>
+                            <td>{{ adjustment.id }}</td>
+                            <td>{{ adjustment.admin.username }}</td>
+                            <td>${{ "%.2f"|format(adjustment.adjustment_amount) }}</td>
+                            <td>{{ adjustment.reason }}</td>
+                            <td>{{ adjustment.adjustment_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
